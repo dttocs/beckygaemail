@@ -58,25 +58,24 @@ def sendmail(completion):
   if query.get() != None:
     if query.get().send_mail:
       if completion.completion:
-        complete = "completed"
+        complete = "successfully completed"
         state = "Complete"
       else:
         complete = "FAILED TO COMPLETE"
         state = "Incomplete"
         
-      mail_sub = "Training %s for %s %s" % (state, completion.first_name,completion.last_name)
+      mail_sub = "EPR Module Training %s for %s %s" % (state, completion.first_name,completion.last_name)
       mail_body = \
 """
 As of %s, %s %s (%s) has %s training.
 
-%s
-""" % (datetime.datetime.strftime(datetime.datetime.now(),"%+"),
-       completion.first_name,completion.last_name, completion.email, complete, completion.content)
+""" % (datetime.datetime.strftime(datetime.datetime.now(),"%Y-%m-%d"),
+       completion.first_name,completion.last_name, completion.email, complete)
 
       logging.info('Sending email: subject %s body %s', mail_sub, mail_body)
       mail.send_mail(sender = query.get().admin_email,
               to = query.get().alert_email,
-              subject = 'Server status change notification: %s' % mail_sub,
+              subject = '%s' % mail_sub,
               body = mail_body)
 
 

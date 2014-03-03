@@ -24,3 +24,7 @@ Fix it so it's just JSON:
 	http://bccqualitymodules.appspot.com/complete
 
 Note that this doesn't actually set the content-type header correctly, but this naive code doesn't check.
+
+Looks like testresult actually requires json, otherwise it encodes:
+
+	curl -v -H 'Content-Type: application/json' --data '{"email":"me@again.com","Pre":[2,2,2,2,2,2,2],"Post":[3,3,3,3,3,3,3]}' http://localhost:10082/testresults

@@ -64,7 +64,7 @@ def sendmail(completion):
         complete = "FAILED TO COMPLETE"
         state = "Incomplete"
         
-      mail_sub = "EPR Module Training %s for %s %s" % (state, completion.first_name,completion.last_name)
+      mail_sub = "EMR Module Training %s for %s %s" % (state, completion.first_name,completion.last_name)
       mail_body = \
 """
 As of %s, %s %s (%s) has %s training.

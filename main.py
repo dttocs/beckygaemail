@@ -19,12 +19,15 @@ from google.appengine.ext import ndb
 from google.appengine.api import users
 from google.appengine.ext.webapp import template
 from google.appengine.api import mail
+from google.appengine.api import namespace_manager
 
 
 import logging
 import json
 import datetime
 import os
+import pprint
+
 
 class CompletionStatus(ndb.Model):
   first_name = ndb.StringProperty()
@@ -43,7 +46,10 @@ class ConfigDB(ndb.Model):
   admin_email = ndb.StringProperty()
   alert_email = ndb.StringProperty()
   send_mail   = ndb.BooleanProperty()
-  
+ 
+# list of valid courses
+class CourseDB(ndb.Model):
+  course = ndb.StringProperty()
   
   
 # send mail
@@ -147,7 +153,32 @@ class MainHandler(webapp2.RequestHandler):
         self.response.headers['Access-Control-Allow-Headers'] = 'Origin, X-Requested-With, Content-Type, Accept'
         self.response.headers['Access-Control-Allow-Methods'] = 'POST, GET, PUT, DELETE'
         
-        
+class ExportHandler(webapp2.RequestHandler):
+  def get(self):
+    self.response.out.write(self.export())
+  
+  def export(self):
+    self.response.headers['Content-Type'] = 'text/csv'
+    type = self.request.get('type')
+    if type == 'complete':
+      text = type
+    elif type == 'test':
+      results_query = TestResult.query()
+      results = results_query.fetch()
+      text = ''
+      for r in results_query.iter():
+        try:
+          content = json.loads(r.content)
+#          text += str(r.content) + '\n' + str(pprint.pformat(json.loads(r.content))) + '\n'
+          text += content['email']+ ',' + \
+                 ','.join(map(str,content['Pre'])) + ',' + \
+                 ','.join(map(str,content['Post'])) + '\n'
+        except Exception, e:
+          text += str(e) + '\n'
+    else: 
+      text = "Unknown export type %s" % type
+    return text
+    
 #AdminHandler
 class AdminHandler(webapp2.RequestHandler):
   def post(self):
@@ -277,6 +308,7 @@ app = webapp2.WSGIApplication([
     ('/', MainHandler),
     ('/complete', CompletionHandler),
     ('/testresults', ResultsHandler),
-    ('/admin', AdminHandler)
+    ('/admin', AdminHandler),
+    ('/export', ExportHandler)
     
 ], debug=True)
